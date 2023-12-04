@@ -21,5 +21,6 @@ class AccountMove(models.Model):
 
     @api.depends("payment_state")
     def _compute_selected_for_payment(self):
-        if self.payment_state == "paid":
-            self.selected_for_payment = False
+        for rec in self:
+            if rec.payment_state == "paid":
+                rec.selected_for_payment = False
