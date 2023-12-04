@@ -7,7 +7,7 @@
             <field name="name" position="before">
                 <field
                     name="selected_for_payment"
-                    attrs="{'invisible': [('payment_state', '!=', 'not_paid') ]}"
+                    attrs="{'invisible': [('payment_state', 'not in', ('not_paid', 'partial'))]}"
                     widget="toggle_button"
                 />
             </field>
@@ -23,12 +23,12 @@
                 <filter
                     string="Selected for payment"
                     name="selected_for_payment"
-                    domain="[('selected_for_payment', '=', True)]"
+                    domain="[('selected_for_payment', 'not in', ('not_paid', 'partial')))]"
                 />
                 <filter
                     string="Not selected for payment"
                     name="not_selected_for_payment"
-                    domain="[('selected_for_payment', '=', False)]"
+                    domain="[('selected_for_payment', 'not in', ('not_paid', 'partial')))]"
                 />
             </xpath>
         </field>
