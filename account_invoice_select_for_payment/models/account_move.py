@@ -8,7 +8,11 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     selected_for_payment = fields.Boolean(
-        string="To Pay", compute="_compute_selected_for_payment", readonly=False
+        string="To Pay",
+        compute="_compute_selected_for_payment",
+        readonly=False,
+        store=True,
+        tracking=True,
     )
 
     def action_toggle_select_for_payment(self):
@@ -19,8 +23,18 @@ class AccountMove(models.Model):
         if unselected:
             unselected.write({"selected_for_payment": True})
 
-    @api.depends("payment_state")
+    @api.depends("payment_state", "selected_for_payment")
     def _compute_selected_for_payment(self):
         for rec in self:
             if rec.payment_state == "paid":
                 rec.selected_for_payment = False
+            if rec.selected_for_payment:
+                rec.button_selected_for_payment()
+            if not rec.selected_for_payment:
+                rec.button_not_selected_for_payment()
+
+    def button_selected_for_payment(self):
+        self.write({"selected_for_payment": True})
+
+    def button_not_selected_for_payment(self):
+        self.write({"selected_for_payment": False})
