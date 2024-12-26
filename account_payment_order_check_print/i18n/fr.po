@@ -1,0 +1,177 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* account_payment_order_check_print
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-26 21:04+0000\n"
+"PO-Revision-Date: 2024-12-26 21:05+0000\n"
+"Last-Translator: Alexis de Lattre <alexis.delattre@akretion.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "<strong class=\"mr16\">Total:</strong>"
+msgstr "<strong class=\"mr16\">Total :</strong>"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "<strong>Date:</strong>"
+msgstr "<strong>Date :</strong>"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "<strong>Payment Reference:</strong>"
+msgstr "<strong>Référence de paiement :</strong>"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Amount"
+msgstr "Montant"
+
+#. module: account_payment_order_check_print
+#: model:account.payment.method,name:account_payment_order_check_print.check_print_method
+msgid "Check Payment Order"
+msgstr "Ordre de paiement par chèque"
+
+#. module: account_payment_order_check_print
+#: model:ir.actions.report,name:account_payment_order_check_print.check_print_report
+msgid "Checks"
+msgstr "Chèques"
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_line.py:0
+#, python-format
+msgid ""
+"Checks can only be used to pay in the company currency. On payment line "
+"%(payline)s of payment order %(order)s, the currency is %(payline_currency)s "
+"whereas the company currency is %(company_currency)s."
+msgstr ""
+"Les chèques ne peuvent être utilisés que pour payer dans la devise de la "
+"société. Sur la ligne de paiement %(payline)s de l'ordre de paiement "
+"%(order)s, la devise est %(payline_currency)s alors que la devise de la "
+"société est %(company_currency)s."
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment.py:0
+#, python-format
+msgid "City is not set on company '%s'."
+msgstr "La ville n'est pas définie sur la société '%s'."
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Dear madam, Dear sir,"
+msgstr "Madame, Monsieur,"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Invoice Date"
+msgstr "Date de facture"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Logo"
+msgstr "Logo"
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_order.py:0
+#, python-format
+msgid ""
+"On payment order %(order)s with payment mode '%(mode)s' the Payment "
+"Execution Date Type must be 'Immediately' because it is a check payment "
+"order."
+msgstr ""
+"Sur l'ordre de paiement %(order)s avec le mode de paiement \"%(mode)s\", le "
+"type de date d'exécution du paiement doit être \" Immédiatement \" car il "
+"s'agit d'un ordre de paiement par chèque."
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_mode.py:0
+#, python-format
+msgid ""
+"On the payment mode '%s' configured with the payment method 'Check Payment "
+"Order', the Payment Execution Date Type must be 'Immediately'."
+msgstr ""
+"Pour le mode de paiement \"%s\" configuré avec la méthode de paiement "
+"\"Ordre de paiement par chèque\", le type de date d'exécution du paiement "
+"doit être \"Immédiatement\"."
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Our Reference"
+msgstr "Notre référence"
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_order.py:0
+#, python-format
+msgid "Paper format not configured on company '%s'."
+msgstr "Le format de papier n'est pas configuré sur la société '%s'."
+
+#. module: account_payment_order_check_print
+#: model:ir.model,name:account_payment_order_check_print.model_account_payment_line
+msgid "Payment Lines"
+msgstr "Lignes de paiement"
+
+#. module: account_payment_order_check_print
+#: model:ir.model,name:account_payment_order_check_print.model_account_payment_method
+msgid "Payment Methods"
+msgstr "Méthodes de paiement"
+
+#. module: account_payment_order_check_print
+#: model:ir.model,name:account_payment_order_check_print.model_account_payment_mode
+msgid "Payment Modes"
+msgstr "Modes de paiement"
+
+#. module: account_payment_order_check_print
+#: model:ir.model,name:account_payment_order_check_print.model_account_payment_order
+msgid "Payment Order"
+msgstr "Ordre de paiement"
+
+#. module: account_payment_order_check_print
+#: model:ir.model,name:account_payment_order_check_print.model_account_payment
+msgid "Payments"
+msgstr "Paiements"
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid ""
+"Please find in the table below the details of the payment that correspond to "
+"this check letter."
+msgstr ""
+"Veuillez trouver dans le tableau ci-dessous les détails du paiement "
+"correspondant à cette lettre chèque."
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_order.py:0
+#, python-format
+msgid ""
+"The generated check report has %(page_count)s pages whereas there are "
+"%(pay_count)s payments. This scenario is not supported."
+msgstr ""
+"La lettre chèque générée comporte %(page_count)s pages alors qu'il y a "
+"%(pay_count)s paiements. Ce scénario n'est pas supporté."
+
+#. module: account_payment_order_check_print
+#. odoo-python
+#: code:addons/account_payment_order_check_print/models/account_payment_order.py:0
+#, python-format
+msgid "Unsupported report type '%s'."
+msgstr "Le type de rapport '%s' n'est pas pris en charge."
+
+#. module: account_payment_order_check_print
+#: model_terms:ir.ui.view,arch_db:account_payment_order_check_print.report_letter_document
+msgid "Your Reference"
+msgstr "Votre référence"

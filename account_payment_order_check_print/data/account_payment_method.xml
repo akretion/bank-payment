@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="check_print_method" model="account.payment.method">
+        <field name="name">Check Payment Order</field>
+        <field name="code">check_payment_order</field>
+        <field name="payment_type">outbound</field>
+        <field name="payment_order_ok" eval="True" />
+        <field name="bank_account_required" eval="False" />
+    </record>
+</odoo>

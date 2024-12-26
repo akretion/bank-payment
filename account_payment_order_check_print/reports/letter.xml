@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+<template id="report_letter_document">
+    <t t-call="web.html_container">
+        <t
+                t-call="web.basic_layout"
+            > <!-- We can't use web.external_layout because it displays page number -->
+            <t t-set="lang" t-value="payment._check_print_lang()" />
+            <t t-set="pay" t-value="payment.with_context(lang=lang)" />
+            <t t-set="address">
+                <div
+                        t-field="pay.partner_id"
+                        t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': True}"
+                    />
+            </t>
+            <div class="header">
+                <div class="row">
+                    <div class="col-3 mb4">
+                        <img
+                                t-if="pay.company_id.logo"
+                                t-att-src="image_data_uri(pay.company_id.logo)"
+                                style="max-height: 45px;"
+                                alt="Logo"
+                            />
+                    </div>
+                    <div
+                            class="col-9 text-end"
+                            style="margin-top:22px;"
+                            t-field="pay.company_id.report_header"
+                            name="moto"
+                        />
+                </div>
+                <div
+                        t-if="pay.company_id.logo or pay.company_id.report_header"
+                        class="row zero_min_height"
+                    >
+                    <div class="col-12">
+                        <div style="border-bottom: 1px solid black;" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6" name="company_address">
+                        <ul class="list-unstyled">
+                            <li t-if="pay.company_id.is_company_details_empty"><t
+                                        t-esc="pay.company_id.partner_id"
+                                        t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'
+                                    /></li>
+                            <li t-else=""><t
+                                        t-esc="pay.company_id.company_details"
+                                    /></li>
+                            <li t-if="pay.company_id.vat">
+                                <t
+                                        t-esc="pay.company_id.country_id.vat_label or 'Tax ID'"
+                                    />:
+                                <span t-esc="pay.company_id.vat" />
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="page" style="page-break-after: always">
+                <div class="pt-5">
+                    <t t-call="web.address_layout" />
+                </div>
+                <div id="informations" class="row mt-4 mb-4">
+                    <div t-if="pay.date" class="col-auto col-3 mw-100 mb-2">
+                        <strong>Date:</strong>
+                        <p class="m-0" t-field="pay.date" />
+                    </div>
+                    <div t-if="pay.name" class="col-auto col-3 mw-100 mb-2">
+                        <strong>Payment Reference:</strong>
+                        <p class="m-0" t-field="pay.payment_order_id.name" />
+                    </div>
+                </div>
+
+                <div name="letter">
+                    <p>Dear madam, Dear sir,</p>
+                    <p
+                        >Please find in the table below the details of the payment that correspond to this check letter.</p>
+                </div>
+                <div class="row mt32 mb32">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th
+                                        class="text-center"
+                                        name="th_our_ref"
+                                    >Our Reference</th>
+                                <th
+                                        class="text-center"
+                                        name="th_your_ref"
+                                    >Your Reference</th>
+                                <th
+                                        class="text-center"
+                                        name="th_invoice_date"
+                                    >Invoice Date</th>
+                                <th class="text-center" name="th_amount">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="pay.payment_line_ids" t-as="line">
+                                <td class="text-center" name="td_our_ref">
+                                    <span t-field="line.name" />
+                                </td>
+                                <td class="text-center" name="td_your_ref">
+                                    <span t-field="line.communication" />
+                                </td>
+                                <td class="text-center" name="td_invoice_date">
+                                    <t t-if="line.move_line_id.move_id">
+                                        <span
+                                                t-field="line.move_line_id.move_id.invoice_date"
+                                                t-if="line.move_line_id.move_id.invoice_date"
+                                            />
+                                        <span
+                                                t-field="line.move_line_id.move_id.date"
+                                                t-else=""
+                                            />
+                                    </t>
+                                </td>
+                                <td class="text-end" name="td_amount">
+                                    <span
+                                            t-field="line.amount_currency"
+                                            class="text-nowrap"
+                                        />
+                                </td>
+                            </tr>
+                            <tr class="is-subtotal text-end">
+                                <td colspan="99">
+                                    <strong class="mr16">Total:</strong>
+                                    <strong><span
+                                                t-field="pay.amount"
+                                                class="text-nowrap"
+                                            /></strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </t>
+</template>
+
+<template id="report_letter">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-foreach="doc.payment_ids" t-as="payment">
+                <t
+                        t-call="account_payment_order_check_print.report_letter_document"
+                        t-lang="payment.partner_id.lang"
+                    />
+            </t>
+        </t>
+    </t>
+</template>
+
+</odoo>
