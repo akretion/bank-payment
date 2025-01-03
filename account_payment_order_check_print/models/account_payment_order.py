@@ -55,15 +55,10 @@ class AccountPaymentOrder(models.Model):
             return super().generate_payment_file()
         filename = f"check_{self.name}.pdf"
         report = self.env.ref("account_payment_order_check_print.check_print_report")
-        if report.report_type in ("qweb-html", "qweb-pdf"):
-            report_bin, report_format = self.env["ir.actions.report"]._render_qweb_pdf(
-                report, [self.id]
-            )
-        else:
-            res = report.render([self.id])
-            if not res:
-                raise UserError(_("Unsupported report type '%s'.") % report.report_type)
-            report_bin, report_format = res
+        res = self.env["ir.actions.report"]._render(report, [self.id])
+        if not res:
+            raise UserError(_("Failed to render check print report."))
+        report_bin, report_format = res
         new_report_bin = self._update_check_print_report(report, report_bin)
         return (new_report_bin, filename)
 
