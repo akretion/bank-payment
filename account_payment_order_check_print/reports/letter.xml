@@ -10,6 +10,12 @@
             <t t-set="pay" t-value="payment.with_context(lang=lang)" />
             <t t-set="address">
                 <div
+                        t-if="pay.payment_line_ids.move_line_id.move_id.partner_id"
+                        t-field="pay.payment_line_ids.move_line_id.move_id.partner_id"
+                        t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': True}"
+                    />
+                <div
+                        t-else=""
                         t-field="pay.partner_id"
                         t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': True}"
                     />
