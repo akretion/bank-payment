@@ -13,14 +13,17 @@ class SaleOrder(models.Model):
         store=True,
         readonly=False,
         check_company=True,
+        tracking=2,
         domain="[('payment_type', '=', 'inbound'), ('company_id', '=', company_id)]",
     )
 
-    @api.depends("partner_id")
+    @api.depends("partner_id", "company_id")
     def _compute_payment_mode(self):
         for order in self:
-            if order.partner_id:
-                order.payment_mode_id = order.partner_id.customer_payment_mode_id
+            if order.partner_id and order.company_id:
+                order.payment_mode_id = order.with_company(
+                    order.company_id.id
+                ).partner_id.customer_payment_mode_id
             else:
                 order.payment_mode_id = False
 
