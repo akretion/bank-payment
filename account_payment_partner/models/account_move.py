@@ -109,27 +109,30 @@ class AccountMove(models.Model):
 
     @api.depends("partner_id", "payment_mode_id")
     def _compute_partner_bank(self):
+        res = super()._compute_partner_bank_id()
         for move in self:
-            # No bank account assignation is done for out_invoice as this is only
-            # needed for printing purposes and it can conflict with
-            # SEPA direct debit payments. Current report prints it.
-            def get_bank_id():
-                return move.commercial_partner_id.bank_ids.filtered(
-                    lambda b: b.company_id == move.company_id or not b.company_id
-                )[:1]
-
-            bank_id = False
-            if move.partner_id:
-                pay_mode = move.payment_mode_id
-                if move.move_type == "in_invoice":
-                    if (
-                        pay_mode
-                        and pay_mode.payment_type == "outbound"
-                        and pay_mode.payment_method_id.bank_account_required
-                        and move.commercial_partner_id.bank_ids
-                    ):
-                        bank_id = get_bank_id()
-            move.partner_bank_id = bank_id
+            payment_mode = move.payment_mode_id
+            if payment_mode:
+                if (
+                    move.move_type == "in_invoice"
+                    and payment_mode.payment_type == "outbound"
+                    and not payment_mode.payment_method_id.bank_account_required
+                ):
+                    move.partner_bank_id = False
+                    continue
+                elif move.move_type == "out_invoice":
+                    if payment_mode.payment_method_id.bank_account_required:
+                        if (
+                            payment_mode.bank_account_link == "fixed"
+                            and payment_mode.fixed_journal_id.bank_account_id
+                        ):
+                            move.partner_bank_id = (
+                                payment_mode.fixed_journal_id.bank_account_id
+                            )
+                            continue
+                    else:
+                        move.partner_bank_id = False
+        return res
 
     def _reverse_move_vals(self, default_values, cancel=True):
         move_vals = super()._reverse_move_vals(default_values, cancel=cancel)
