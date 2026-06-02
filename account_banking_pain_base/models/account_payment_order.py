@@ -500,6 +500,73 @@ class AccountPaymentOrder(models.Model):
     @api.model
     def generate_address_block(self, parent_node, partner, gen_args):
         """Generate the piece of the XML corresponding to PstlAdr"""
+        if gen_args["pain_flavor"].startswith(("pain.001.003.03", "pain.008.003.02")):
+            # only for german-specific PAIN variants
+            return self.generate_unstructured_address_block(
+                parent_node, partner, gen_args
+            )
+        if partner.country_id:
+            postal_address = etree.SubElement(parent_node, "PstlAdr")
+            if partner.zip:
+                zip_node = etree.SubElement(postal_address, "PstCd")
+                zip_node.text = self._prepare_field(
+                    "ZIP Code",
+                    "partner.zip",
+                    {"partner": partner},
+                    16,
+                    gen_args=gen_args,
+                )
+            if partner.city:
+                city_node = etree.SubElement(postal_address, "TwnNm")
+                city_node.text = self._prepare_field(
+                    "City", "partner.city", {"partner": partner}, 35, gen_args=gen_args
+                )
+            if partner.state_id:
+                state_node = etree.SubElement(postal_address, "CtrySubDvsn")
+                state_node.text = self._prepare_field(
+                    "State",
+                    "partner.state_id.name",
+                    {"partner": partner},
+                    35,
+                    gen_args=gen_args,
+                )
+            country = etree.SubElement(postal_address, "Ctry")
+            country.text = self._prepare_field(
+                "Country",
+                "partner.country_id.code",
+                {"partner": partner},
+                2,
+                gen_args=gen_args,
+            )
+            if partner.street:
+                adrline1 = etree.SubElement(postal_address, "AdrLine")
+                adrline1.text = self._prepare_field(
+                    "Street as Address Line 1",
+                    "partner.street",
+                    {"partner": partner},
+                    70,
+                    gen_args=gen_args,
+                )
+            if partner.street2:
+                # EPC says that we can only have 2 occurences of AdrLine
+                adrline2_val = partner.street2
+                # if module OCA/partner-contact/partner_address_street3 is installed
+                if hasattr(partner, "street3") and partner.street3:
+                    adrline2_val = " - ".join([adrline2_val, partner.street3])
+                adrline2 = etree.SubElement(postal_address, "AdrLine")
+                adrline2.text = self._prepare_field(
+                    "Street2 as Address Line 2",
+                    "adrline2_val",
+                    {"adrline2_val": adrline2_val},
+                    70,
+                    gen_args=gen_args,
+                )
+
+    def generate_unstructured_address_block(self, parent_node, partner, gen_args):
+        """Generation of unstructured address block is deprecated according to EPC
+        and will not be allowed after nov 2025
+        But the german variant pain.001.003.03 still requires it
+        """
         if partner.country_id:
             postal_address = etree.SubElement(parent_node, "PstlAdr")
             country = etree.SubElement(postal_address, "Ctry")
@@ -546,7 +613,6 @@ class AccountPaymentOrder(models.Model):
                         )
                     )
                 adrline2.text = " ".join(val)
-        return True
 
     @api.model
     def generate_party_block(
