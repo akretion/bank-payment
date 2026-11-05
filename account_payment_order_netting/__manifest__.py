@@ -12,6 +12,6 @@
     "website": "https://github.com/OCA/bank-payment",
     "category": "Banking addons",
     "depends": ["account_payment_order"],
-    "data": ["views/account_payment_mode.xml"],
+    "data": ["views/account_payment_mode.xml", "views/account_payment_order.xml"],
     "installable": True,
 }

@@ -21,27 +21,13 @@ class AccountPayment(models.Model):
         if not self._is_netting():
             return vals_list
         liquidity_vals = vals_list[0]
-        company = self.company_id
-        counterpart_vals_list = []
-        for payline in self.payment_line_ids:
-            balance = self.currency_id._convert(
-                payline.amount_currency, company.currency_id, company, self.date
+        counterpart_vals_list = [
+            payline._prepare_netting_move_line_vals(
+                self.date, self.destination_account_id
             )
-            counterpart_vals_list.append(
-                {
-                    "name": payline.communication,
-                    "date_maturity": liquidity_vals["date_maturity"],
-                    "partner_id": self.partner_id.id,
-                    "account_id": (
-                        payline.move_line_id.account_id or self.destination_account_id
-                    ).id,
-                    "currency_id": self.currency_id.id,
-                    "amount_currency": payline.amount_currency,
-                    "debit": max(balance, 0.0),
-                    "credit": max(-balance, 0.0),
-                }
-            )
-        liquidity_balance = company.currency_id.round(
+            for payline in self.payment_line_ids
+        ]
+        liquidity_balance = self.company_id.currency_id.round(
             sum(vals["credit"] - vals["debit"] for vals in counterpart_vals_list)
         )
         liquidity_vals.update(
@@ -64,15 +50,6 @@ class AccountPayment(models.Model):
         if not self._is_netting():
             return super()._reconcile_payment_lines()
         _liquidity_lines, counterpart_lines, writeoff_lines = self._seek_for_lines()
-        counterpart_lines |= writeoff_lines
-        for payline in self.payment_line_ids.filtered("move_line_id"):
-            counterpart = counterpart_lines.filtered(
-                lambda line, payline=payline: line.account_id
-                == payline.move_line_id.account_id
-                and self.currency_id.compare_amounts(
-                    line.amount_currency, payline.amount_currency
-                )
-                == 0
-            )[:1]
-            counterpart_lines -= counterpart
-            (counterpart | payline.move_line_id).reconcile()
+        self.payment_line_ids._reconcile_netting_counterparts(
+            counterpart_lines | writeoff_lines
+        )
