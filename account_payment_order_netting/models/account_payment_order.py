@@ -99,6 +99,15 @@ class AccountPaymentOrder(models.Model):
             order._create_netting_moves()
         return res
 
+    def _get_liquidity_accounts(self):
+        self.ensure_one()
+        journal = self.journal_id
+        return (
+            journal.default_account_id
+            | journal.payment_debit_account_id
+            | journal.payment_credit_account_id
+        )
+
     def _create_netting_moves(self):
         self.ensure_one()
         group_lines = self.payment_mode_id.group_lines
