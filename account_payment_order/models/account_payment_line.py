@@ -134,12 +134,16 @@ class AccountPaymentLine(models.Model):
         # Don't group the payment lines that are attached to the same supplier
         # but to move lines with different accounts (very unlikely),
         # for easier generation/comprehension of the transfer move
-        values.append(str(self.move_line_id.account_id or False))
+        values.append(str(self._payment_line_grouping_account_key()))
         # Don't group the payment lines that use a structured communication
         # otherwise it would break the structured communication system !
         if self.communication_type != "normal":
             values.append(str(self.id))
         return "-".join(values)
+
+    def _payment_line_grouping_account_key(self):
+        self.ensure_one()
+        return self.move_line_id.account_id or False
 
     @api.onchange("partner_id")
     def partner_id_change(self):
@@ -178,6 +182,22 @@ class AccountPaymentLine(models.Model):
             )
         if not self.communication:
             raise UserError(_("Communication is empty on payment line %s.") % self.name)
+
+    def _prepare_write_draft2open(self):
+        self.ensure_one()
+        today = fields.Date.context_today(self)
+        order = self.order_id
+        # Compute requested payment date
+        if order.date_prefered == "due":
+            requested_date = self.ml_maturity_date or self.date or today
+        elif order.date_prefered == "fixed":
+            requested_date = order.date_scheduled or today
+        else:
+            requested_date = today
+        # No payment date in the past unless allowed
+        if not order.allow_past_date:
+            requested_date = max(today, requested_date)
+        return {"date": requested_date}
 
     def _prepare_account_payment_vals(self):
         """Prepare the dictionary to create an account payment record from a set of

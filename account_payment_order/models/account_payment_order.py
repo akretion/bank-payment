@@ -8,7 +8,6 @@ import base64
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import float_compare
 
 
 class AccountPaymentOrder(models.Model):
@@ -299,7 +298,6 @@ class AccountPaymentOrder(models.Model):
         setting of the payment.order
         Re-generate the account payments.
         """
-        today = fields.Date.context_today(self)
         for order in self:
             if not order.journal_id:
                 raise UserError(
@@ -329,16 +327,8 @@ class AccountPaymentOrder(models.Model):
                     payline.draft2open_payment_line_check()
                 except UserError as e:
                     payline_err_text.append(e.args[0])
-                # Compute requested payment date
-                if order.date_prefered == "due":
-                    requested_date = payline.ml_maturity_date or payline.date or today
-                elif order.date_prefered == "fixed":
-                    requested_date = order.date_scheduled or today
-                else:
-                    requested_date = today
-                # No payment date in the past unless allowed
-                if not order.allow_past_date:
-                    requested_date = max(today, requested_date)
+                payline_vals = payline._prepare_write_draft2open()
+                requested_date = payline_vals["date"]
                 # inbound: check option no_debit_before_maturity
                 if (
                     order.payment_type == "inbound"
@@ -366,7 +356,7 @@ class AccountPaymentOrder(models.Model):
                 # > payment_line_ids.amount_company_currency
                 # > total_company_currency
                 with self.env.norecompute():
-                    payline.date = requested_date
+                    payline.write(payline_vals)
                 # Group options
                 hashcode = (
                     payline.payment_line_hashcode()
@@ -380,6 +370,7 @@ class AccountPaymentOrder(models.Model):
                     group_paylines[hashcode] = {
                         "paylines": payline,
                         "total": payline.amount_currency,
+                        "currency": payline.currency_id,
                     }
             # Raise errors that happened on the validation process
             if payline_err_text:
@@ -392,16 +383,21 @@ class AccountPaymentOrder(models.Model):
             # Create account payments
             payment_vals = []
             for paydict in list(group_paylines.values()):
-                # Block if a bank payment line is <= 0
-                if paydict["total"] <= 0:
-                    raise UserError(
-                        _("The amount for Partner '%s' is negative " "or null (%.2f) !")
-                        % (paydict["paylines"][0].partner_id.name, paydict["total"])
-                    )
+                order._draft2open_payment_group_check(paydict)
+                if paydict["currency"].is_zero(paydict["total"]):
+                    continue
                 payment_vals.append(paydict["paylines"]._prepare_account_payment_vals())
             self.env["account.payment"].create(payment_vals)
         self.write({"state": "open"})
         return True
+
+    def _draft2open_payment_group_check(self, paydict):
+        # Block if a bank payment line is <= 0
+        if paydict["currency"].compare_amounts(paydict["total"], 0) <= 0:
+            raise UserError(
+                _("The amount for Partner '%s' is negative " "or null (%.2f) !")
+                % (paydict["paylines"][0].partner_id.name, paydict["total"])
+            )
 
     def generate_payment_file(self):
         """Returns (payment file as string, filename)"""
@@ -459,42 +455,7 @@ class AccountPaymentOrder(models.Model):
         self.payment_ids.action_post()
         # Perform the reconciliation of payments and source journal items
         for payment in self.payment_ids:
-            payment_move_line_id = payment.move_id.line_ids.filtered(
-                lambda x: x.account_id == payment.destination_account_id
-            )
-            apr = self.env["account.partial.reconcile"]
-            excl_pay_lines = self.env["account.payment.line"]
-            for line in payment.payment_line_ids:
-                if not line.move_line_id:
-                    continue
-                sign = -1 if payment.payment_order_id.payment_type == "outbound" else 1
-                if (
-                    float_compare(
-                        line.amount_currency,
-                        (line.move_line_id.amount_residual_currency * sign),
-                        precision_rounding=line.move_line_id.currency_id.rounding,
-                    )
-                    != 0
-                ):
-                    if line.move_line_id.amount_residual_currency < 0:
-                        debit_move_id = payment_move_line_id.id
-                        credit_move_id = line.move_line_id.id
-                    else:
-                        debit_move_id = line.move_line_id.id
-                        credit_move_id = payment_move_line_id.id
-                    apr.create(
-                        {
-                            "debit_move_id": debit_move_id,
-                            "credit_move_id": credit_move_id,
-                            "amount": abs(line.amount_company_currency),
-                            "debit_amount_currency": abs(line.amount_currency),
-                            "credit_amount_currency": abs(line.amount_currency),
-                        }
-                    )
-                    excl_pay_lines |= line
-            pay_lines = payment.payment_line_ids - excl_pay_lines
-            if pay_lines:
-                (pay_lines.move_line_id + payment_move_line_id).reconcile()
+            payment._reconcile_payment_lines()
         self.write(
             {"state": "uploaded", "date_uploaded": fields.Date.context_today(self)}
         )
