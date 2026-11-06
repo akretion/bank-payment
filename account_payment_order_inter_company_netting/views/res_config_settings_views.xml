@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Copyright 2026 Akretion
+  @author Guillaume MASSON <guillaume.masson@akretion.com>
+  License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.interco.netting</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//div[@id='print_vendor_checks_setting_container']"
+                position="inside"
+            >
+                <div
+                    class="col-12 col-lg-6 o_setting_box"
+                    id="interco_dividend_accounts"
+                >
+                    <div class="o_setting_left_pane" />
+                    <div class="o_setting_right_pane">
+                        <span class="o_form_label">Inter-company dividends</span>
+                        <span
+                            class="fa fa-lg fa-building-o"
+                            title="Values set here are company-specific."
+                            aria-label="Values set here are company-specific."
+                            groups="base.group_multi_company"
+                            role="img"
+                        />
+                        <div class="text-muted">
+                            Accounts of the dividends netted in inter-company payment orders.
+                        </div>
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label
+                                    for="interco_dividend_receivable_account_id"
+                                    string="Receivable"
+                                    class="col-lg-3 o_light_label"
+                                />
+                                <field name="interco_dividend_receivable_account_id" />
+                            </div>
+                            <div class="row">
+                                <label
+                                    for="interco_dividend_payable_account_id"
+                                    string="Payable"
+                                    class="col-lg-3 o_light_label"
+                                />
+                                <field name="interco_dividend_payable_account_id" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 o_setting_box" id="interco_netting_journal">
+                    <div class="o_setting_left_pane" />
+                    <div class="o_setting_right_pane">
+                        <span class="o_form_label">Inter-company netting journal</span>
+                        <span
+                            class="fa fa-lg fa-building-o"
+                            title="Values set here are company-specific."
+                            aria-label="Values set here are company-specific."
+                            groups="base.group_multi_company"
+                            role="img"
+                        />
+                        <div class="text-muted">
+                            General journal of the entries mirroring the net-zero groups of inter-company payment orders.
+                        </div>
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label
+                                    for="interco_netting_journal_id"
+                                    string="Journal"
+                                    class="col-lg-3 o_light_label"
+                                />
+                                <field name="interco_netting_journal_id" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
