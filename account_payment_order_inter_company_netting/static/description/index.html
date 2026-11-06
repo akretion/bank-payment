@@ -378,23 +378,53 @@ ul.auto-toc {
 <tt class="docutils literal">account_payment_order_inter_company</tt>: one line per payment line, with the
 opposite sign, on the account of the linked inter-company invoice, reconciled
 with it. A paid supplier invoice credits the receivable account, a netted
-customer invoice debits the payable account. A netted line without linked
-invoice is booked on the partner’s payable account, left unreconciled, with a
-message on the payment order.</p>
+customer invoice debits the payable account.</p>
+<p>A mirror line is left unreconciled, with a message on the payment order, when:</p>
+<ul class="simple">
+<li>the netted line has no linked invoice: booked on the partner’s payable account;</li>
+<li>the linked invoice is not posted, its line is already fully reconciled, or it
+doesn’t have the same number of installments as the netted invoice: booked on
+the account of the linked invoice.</li>
+</ul>
+<p>A netted line on the paying company’s dividend receivable account is a dividend:
+its mirror line goes on the receiving company’s dividend payable account. It is
+reconciled only when exactly one open line of that account matches (partner =
+paying company or empty, residual = amount). Otherwise it is left open, with a
+message on the payment order. Two dividends of the same amount in one source are
+both left open.</p>
+<p>A net-zero group has no payment but its entry gets a mirror too: same lines, no
+outstanding line, in the receiving company’s inter-company netting journal. It
+follows its source: reset to draft, cancelled or deleted with it. Posting the
+source again doesn’t post the mirror.</p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-1">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-2">Credits</a><ul>
-<li><a class="reference internal" href="#authors" id="toc-entry-3">Authors</a></li>
-<li><a class="reference internal" href="#contributors" id="toc-entry-4">Contributors</a></li>
-<li><a class="reference internal" href="#maintainers" id="toc-entry-5">Maintainers</a></li>
+<li><a class="reference internal" href="#configuration" id="toc-entry-1">Configuration</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-2">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-3">Credits</a><ul>
+<li><a class="reference internal" href="#authors" id="toc-entry-4">Authors</a></li>
+<li><a class="reference internal" href="#contributors" id="toc-entry-5">Contributors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-6">Maintainers</a></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="section" id="configuration">
+<h2><a class="toc-backref" href="#toc-entry-1">Configuration</a></h2>
+<p>In <em>Invoicing &gt; Configuration &gt; Settings</em>, section <em>Vendor Payments</em>, set the
+reconcilable inter-company dividend accounts:</p>
+<ul class="simple">
+<li><em>Receivable</em> on the company paying the transfer. If it is not set, no line is
+a dividend: its mirror goes on the partner’s payable account;</li>
+<li><em>Payable</em> on the company receiving it. Uploading a payment order with a netted
+dividend is refused if this account is not set.</li>
+</ul>
+<p>In the same section, set the <em>Inter-company netting journal</em> (general journal) on
+the company receiving the transfers. Uploading a payment order with a net-zero
+group for that company is refused if it is not set.</p>
+</div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-1">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-2">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/bank-payment/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -402,21 +432,21 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-2">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-3">Credits</a></h2>
 <div class="section" id="authors">
-<h3><a class="toc-backref" href="#toc-entry-3">Authors</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-4">Authors</a></h3>
 <ul class="simple">
 <li>Akretion</li>
 </ul>
 </div>
 <div class="section" id="contributors">
-<h3><a class="toc-backref" href="#toc-entry-4">Contributors</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-5">Contributors</a></h3>
 <ul class="simple">
 <li>Guillaume Masson &lt;<a class="reference external" href="mailto:guillaume.masson&#64;akretion.com">guillaume.masson&#64;akretion.com</a>&gt;</li>
 </ul>
 </div>
 <div class="section" id="maintainers">
-<h3><a class="toc-backref" href="#toc-entry-5">Maintainers</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-6">Maintainers</a></h3>
 <p>This module is maintained by the OCA.</p>
 <a class="reference external image-reference" href="https://odoo-community.org"><img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" /></a>
 <p>OCA, or the Odoo Community Association, is a nonprofit organization whose

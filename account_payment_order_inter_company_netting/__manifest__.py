@@ -15,6 +15,7 @@
         "account_payment_order_inter_company",
         "account_payment_order_netting",
     ],
+    "data": ["views/res_config_settings_views.xml"],
     "auto_install": True,
     "installable": True,
 }
