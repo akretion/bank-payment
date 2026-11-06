@@ -13,9 +13,9 @@
     "category": "Banking addons",
     "depends": ["account_payment_order"],
     "data": [
-        "views/account_payment_mode.xml",
-        "views/account_payment_order.xml",
-        "wizard/account_payment_line_create_view.xml",
+        "views/account_payment_mode_views.xml",
+        "views/account_payment_order_views.xml",
+        "wizards/account_payment_line_create_views.xml",
     ],
     "installable": True,
 }
