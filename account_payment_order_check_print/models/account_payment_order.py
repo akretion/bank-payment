@@ -5,10 +5,9 @@
 import logging
 from io import BytesIO
 
-from reportlab.pdfgen import canvas
-
 from odoo import _, models
 from odoo.exceptions import UserError
+from reportlab.pdfgen import canvas
 
 logger = logging.getLogger(__name__)
 
@@ -109,10 +108,10 @@ class AccountPaymentOrder(models.Model):
             chq_canvas.save()
             packet.seek(0)
             watermark_pdf_reader = PdfReader(packet)
-            page = pdf_reader.pages[page_index]
+            pdf_writer.add_page(pdf_reader.pages[page_index])
+            page = pdf_writer.pages[-1]
             page.merge_page(watermark_pdf_reader.pages[0])
-            pdf_writer.add_page(page)
-            pdf_writer.pages[page_index].compress_content_streams()
+            page.compress_content_streams()
         new_report_io = BytesIO()
         pdf_writer.write(new_report_io)
         new_report_bin = new_report_io.getvalue()
